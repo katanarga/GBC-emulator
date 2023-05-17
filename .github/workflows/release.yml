@@ -33,6 +33,6 @@ jobs:
         with:
           title: 'Release ${ { steps.changelog.outputs.tag }}'
           commit-message: 'Create new release ${ { steps.changelog.outputs.tag }}'
-          branch: 'release/${ { steps.changelog.outputs.tag }}'
+          branch: 'dev'
           body: 'This PR is auto-generated for the new release.'
 
