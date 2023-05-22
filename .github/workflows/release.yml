@@ -1,8 +1,8 @@
 name: Automated Release and PR
 on:
-  push:
-    branches:
-      - master
+  # push:
+  #   branches:
+  #     - master
   workflow_dispatch: # Trigger manually 
     branches: [master] # Branch on which the workflow will run 
 
@@ -35,6 +35,6 @@ jobs:
         with:
           title: 'Release ${ { steps.changelog.outputs.tag }}'
           commit-message: 'Create new release ${ { steps.changelog.outputs.tag }}'
-          branch: 'dev'
+          branch: 'testdj'
           body: 'This PR is auto-generated for the new release.'
 
