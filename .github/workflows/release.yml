@@ -36,7 +36,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           source_branch: testdj
           target_branch: master
-          title: Release ${{ steps.changelog.outputs.tag }}
+          title: ${{ format('Release {0}', steps.changelog.outputs.tag) }}
           body: ${{ steps.changelog.outputs.clean_changelog }}
           label: enhancement
           get_diff: true
