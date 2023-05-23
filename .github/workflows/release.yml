@@ -41,9 +41,8 @@ jobs:
           reviewer: octocat
           assignee: octocat
           label: enhancement
-          milestone: My milestone
           draft: true
-          old_string: "<!-- Add your description here -->"
+          old_string: "une description classique de PR..."
           new_string: "** Automatic pull request**"
           get_diff: true
           ignore_users: "dependabot"
