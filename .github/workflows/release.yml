@@ -36,12 +36,9 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           source_branch: testdj
           target_branch: master
-          title: My pull request
-          body: "**Automated pull request**"
+          title: Release ${{ steps.changelog.outputs.tag }}
+          body: ${{ steps.changelog.outputs.clean_changelog }}
           label: enhancement
-          draft: true
-          old_string: "une description classique de PR..."
-          new_string: "** Automatic pull request**"
           get_diff: true
           ignore_users: "dependabot"
           allow_no_diff: false
