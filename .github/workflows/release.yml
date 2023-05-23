@@ -38,8 +38,6 @@ jobs:
           target_branch: master
           title: My pull request
           body: "**Automated pull request**"
-          reviewer: octocat
-          assignee: octocat
           label: enhancement
           draft: true
           old_string: "une description classique de PR..."
