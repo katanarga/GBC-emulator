@@ -12,33 +12,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Conventional Changelog Action
-        id: changelog
-        uses: TriPSs/conventional-changelog-action@v3
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          output-file: 'false'
+          fetch-depth: 0
+          
+      - name: Get the latest tag
+        id: gettag
+        run: echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
 
-      - name: Create Release
-        uses: actions/create-release@v1
-        if: ${{ steps.changelog.outputs.skipped == 'false' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.changelog.outputs.tag }}
-          release_name: ${{ steps.changelog.outputs.tag }}
-          body: ${{ steps.changelog.outputs.clean_changelog }}
-
-      - name: Create Pull Request
-        uses: devops-infra/action-pull-request@v0.5.5
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          source_branch: testdj
-          target_branch: master
-          title: ${{ format('Release {0}', steps.changelog.outputs.tag) }}
-          body: ${{ steps.changelog.outputs.clean_changelog }}
-          label: enhancement
-          get_diff: true
-          ignore_users: "dependabot"
-          allow_no_diff: false
+      - name: Show the latest tag
+        run: echo "The latest tag is ${{ steps.gettag.outputs.tag }}"
