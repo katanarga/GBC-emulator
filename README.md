@@ -4,5 +4,4 @@ The GUI was developed with SDL 2.
 The documentation is located in the folder doc.
 aammz
 machin
-njk
 lucas
