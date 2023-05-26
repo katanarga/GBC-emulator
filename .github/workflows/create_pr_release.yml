@@ -57,4 +57,4 @@ jobs:
           title: ${{ format('Release {0}', steps.versioning.outputs.version) }}
           body: ${{ steps.changelog.outputs.clean_changelog }}
           assignee: ${{ github.actor }}
-          reviewer: "MrBuBBLs,lcordenod,katanarga,ArunNara04"
+          reviewer: "lcordenod,katanarga"
