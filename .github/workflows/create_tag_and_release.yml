@@ -1,0 +1,46 @@
+name: Automated Release and new tag
+on:
+  workflow_dispatch:
+    branches: [master]
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Get the latest tag
+        id: latesttag
+        run: echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
+
+      - name: Show the latest tag
+        run: echo "The latest tag is ${{ steps.latesttag.outputs.tag }}"
+
+      - name: Analyze commits and increment version
+        id: versioning
+        run: |
+          LAST_VERSION=${{ steps.latesttag.outputs.tag }}
+          MAJOR_VERSION=$(echo $LAST_VERSION | cut -d. -f1)
+          MINOR_VERSION=$(echo $LAST_VERSION | cut -d. -f2)
+          PATCH_VERSION=$(echo $LAST_VERSION | cut -d. -f3)
+
+          COMMITS=$(git log $LAST_VERSION..HEAD --pretty=format:"%s")
+
+          if echo "$COMMITS" | grep -q "feat"; then
+            MINOR_VERSION=$((MINOR_VERSION+1))
+            PATCH_VERSION=0
+          elif echo "$COMMITS" | grep -q "fix"; then
+            PATCH_VERSION=$((PATCH_VERSION+1))
+          fi
+
+          NEW_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION"
+
+          echo "::set-output name=version::$NEW_VERSION"
+
+      - name: Create new tag
+        run: git tag ${{ steps.versioning.outputs.version }}
+
+      - name: Push tags
+        run: git push origin --tags

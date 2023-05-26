@@ -1,0 +1,36 @@
+name: Automated Release PR
+on:
+  workflow_dispatch: 
+    branches: [dev]
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Get the latest tag
+        id: latesttag
+        run: echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
+
+      - name: Show the latest tag
+        run: echo "The latest tag is ${{ steps.latesttag.outputs.tag }}"
+
+      - name: conventional Changelog Action
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v3.7.1
+        with:
+          github-token: ${{ secrets.github_token }}
+
+      - name: Create Pull Request
+        uses: devops-infra/action-pull-request@v0.5.5
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          source_branch: dev
+          target_branch: master
+          title: ${{ format('Release {0}', steps.latesttag.outputs.tag) }}
+          body: ${{ steps.changelog.outputs.clean_changelog }}
+          label: enhancement
