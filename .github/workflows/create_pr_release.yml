@@ -19,11 +19,34 @@ jobs:
       - name: Show the latest tag
         run: echo "The latest tag is ${{ steps.latesttag.outputs.tag }}"
 
+      - name: Analyze commits and increment version
+        id: versioning
+        run: |
+          LAST_VERSION=${{ steps.latesttag.outputs.tag }}
+          MAJOR_VERSION=$(echo $LAST_VERSION | cut -d. -f1)
+          MINOR_VERSION=$(echo $LAST_VERSION | cut -d. -f2)
+          PATCH_VERSION=$(echo $LAST_VERSION | cut -d. -f3)
+
+          COMMITS=$(git log $LAST_VERSION..HEAD --pretty=format:"%s")
+
+          if echo "$COMMITS" | grep -q "feat"; then
+            MINOR_VERSION=$((MINOR_VERSION+1))
+            PATCH_VERSION=0
+          elif echo "$COMMITS" | grep -q "fix"; then
+            PATCH_VERSION=$((PATCH_VERSION+1))
+          fi
+
+          NEW_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION"
+
+          echo "::set-output name=version::$NEW_VERSION"
+
       - name: conventional Changelog Action
         id: changelog
         uses: TriPSs/conventional-changelog-action@v3.7.1
         with:
           github-token: ${{ secrets.github_token }}
+          output-file: false
+          skip-commit: true
 
       - name: Create Pull Request
         uses: devops-infra/action-pull-request@v0.5.5
@@ -31,6 +54,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           source_branch: dev
           target_branch: master
-          title: ${{ format('Release {0}', steps.latesttag.outputs.tag) }}
+          title: ${{ format('Release {0}', steps.versioning.outputs.version) }}
           body: ${{ steps.changelog.outputs.clean_changelog }}
           label: enhancement
