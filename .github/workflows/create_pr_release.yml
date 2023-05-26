@@ -1,4 +1,4 @@
-name: Automated Release PR
+name: New Release PR
 on:
   workflow_dispatch: 
     branches: [dev]

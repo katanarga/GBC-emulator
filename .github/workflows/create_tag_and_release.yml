@@ -1,4 +1,4 @@
-name: Automated Release and new tag
+name: New Release and tag
 on:
   workflow_dispatch:
     branches: [master]
