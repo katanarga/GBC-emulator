@@ -44,6 +44,7 @@ jobs:
           fi
 
           NEW_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION"
+          PR_LABELS=${PR_LABELS%?}
 
           echo "::set-output name=version::$NEW_VERSION"
           echo "::set-output name=pr_labels::$PR_LABELS"
