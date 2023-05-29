@@ -30,19 +30,23 @@ jobs:
           MAJOR_VERSION=$(echo $LAST_VERSION | cut -d. -f1)
           MINOR_VERSION=$(echo $LAST_VERSION | cut -d. -f2)
           PATCH_VERSION=$(echo $LAST_VERSION | cut -d. -f3)
+          PR_LABELS=""
 
           COMMITS=$(git log $LAST_VERSION..HEAD --pretty=format:"%s")
 
           if echo "$COMMITS" | grep -q "feat"; then
             MINOR_VERSION=$((MINOR_VERSION+1))
             PATCH_VERSION=0
+            PR_LABELS+="feature,"
           elif echo "$COMMITS" | grep -q "fix"; then
             PATCH_VERSION=$((PATCH_VERSION+1))
+            PR_LABELS+="bug,"
           fi
 
           NEW_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION"
 
           echo "::set-output name=version::$NEW_VERSION"
+          echo "::set-output name=pr_labels::$PR_LABELS"
 
       - name: Create Pull Request
         uses: devops-infra/action-pull-request@v0.5.5
@@ -54,3 +58,4 @@ jobs:
           body: ${{ steps.changelog.outputs.commits }}
           assignee: ${{ github.actor }}
           reviewer: "lcordenod,katanarga"
+          label: ${{ steps.changelog.outputs.pr_labels }}
