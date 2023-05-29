@@ -37,10 +37,27 @@ jobs:
           if echo "$COMMITS" | grep -q "feat"; then
             MINOR_VERSION=$((MINOR_VERSION+1))
             PATCH_VERSION=0
-            PR_LABELS+="feature,"
           elif echo "$COMMITS" | grep -q "fix"; then
             PATCH_VERSION=$((PATCH_VERSION+1))
+          fi
+
+          if echo "$COMMITS" | grep -q "feat"; then
+            PR_LABELS+="feature,"
+          fi
+          if echo "$COMMITS" | grep -q "fix"; then
             PR_LABELS+="bug,"
+          fi
+          if echo "$COMMITS" | grep -q "docs"; then
+            PR_LABELS+="docs,"
+          fi
+          if echo "$COMMITS" | grep -q "style"; then
+            PR_LABELS+="style,"
+          fi
+          if echo "$COMMITS" | grep -q "perf"; then
+            PR_LABELS+="performance,"
+          fi
+          if echo "$COMMITS" | grep -q "release|prerelease"; then
+            PR_LABELS+="release|prerelease,"
           fi
 
           NEW_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION"
