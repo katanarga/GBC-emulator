@@ -19,6 +19,10 @@ jobs:
       - name: Show the latest tag
         run: echo "The latest tag is ${{ steps.latesttag.outputs.tag }}"
 
+      - name: Generate changelog
+        id: changelog
+        run: echo "::set-output name=commits::$(git log ${{ steps.lasttag.outputs.tag }}..HEAD --oneline)"
+
       - name: Analyze commits and increment version
         id: versioning
         run: |
@@ -40,15 +44,6 @@ jobs:
 
           echo "::set-output name=version::$NEW_VERSION"
 
-      - name: conventional Changelog Action
-        id: changelog
-        uses: TriPSs/conventional-changelog-action@v3.7.1
-        with:
-          github-token: ${{ secrets.github_token }}
-          output-file: false
-          skip-commit: true
-          skip-tag: true
-
       - name: Create Pull Request
         uses: devops-infra/action-pull-request@v0.5.5
         with:
@@ -56,6 +51,6 @@ jobs:
           source_branch: dev
           target_branch: master
           title: ${{ format('Release {0}', steps.versioning.outputs.version) }}
-          body: ${{ steps.changelog.outputs.clean_changelog }}
+          body: ${{ steps.changelog.outputs.commits }}
           assignee: ${{ github.actor }}
           reviewer: "lcordenod,katanarga"
