@@ -3,44 +3,47 @@ on:
   workflow_dispatch:
     branches: [master]
 jobs:
-  create-tag:
+  create-tag-and-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
-      - name: Get the latest tag
-        id: latesttag
-        run: echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
-
-      - name: Show the latest tag
-        run: echo "The latest tag is ${{ steps.latesttag.outputs.tag }}"
-
-      - name: Analyze commits and increment version
-        id: versioning
+      
+      - name: Get last merged PR
+        id: last-merged-pr
         run: |
-          LAST_VERSION=${{ steps.latesttag.outputs.tag }}
-          MAJOR_VERSION=$(echo $LAST_VERSION | cut -d. -f1)
-          MINOR_VERSION=$(echo $LAST_VERSION | cut -d. -f2)
-          PATCH_VERSION=$(echo $LAST_VERSION | cut -d. -f3)
-
-          COMMITS=$(git log $LAST_VERSION..HEAD --pretty=format:"%s")
-
-          if echo "$COMMITS" | grep -q "feat"; then
-            MINOR_VERSION=$((MINOR_VERSION+1))
-            PATCH_VERSION=0
-          elif echo "$COMMITS" | grep -q "fix"; then
-            PATCH_VERSION=$((PATCH_VERSION+1))
+          PR_NUMBER=$(gh pr list --base master --state merged --limit 1 | awk '{print $1}')
+          PR_TITLE=$(gh pr view $PR_NUMBER --json title -q '.title')
+          PR_BODY=$(gh pr view $PR_NUMBER --json body -q '.body')
+          read -r first_word second_word <<< "$PR_TITLE"
+          if [ "$first_word" != "Release" ]; then
+            echo "Error, the last PR merged in master ($PR_TITLE) is not a release, end of workflow. "
+            exit 1
           fi
-
-          NEW_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION"
-
-          echo "::set-output name=version::$NEW_VERSION"
+          echo "::set-output name=new_tag::$second_word"
+          echo "::set-output name=pr_body::$PR_BODY"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create new tag
-        run: git tag ${{ steps.versioning.outputs.version }}
+        run: git tag ${{ steps.last-merged-pr.outputs.new_tag }}
 
       - name: Push tags
         run: git push origin --tags
+
+      - name: Display last merged PR title
+        run: echo "The neeew tag is '${{ steps.last-merged-pr.outputs.new_tag }}'"
+      
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.last-merged-pr.outputs.new_tag }}
+          release_name: Release ${{ steps.last-merged-pr.outputs.new_tag }}
+          body: ${{ steps.last-merged-pr.outputs.pr_body }}
+          draft: false
+          prerelease: false
