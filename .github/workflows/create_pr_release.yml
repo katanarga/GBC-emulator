@@ -58,4 +58,4 @@ jobs:
           body: ${{ steps.changelog.outputs.commits }}
           assignee: ${{ github.actor }}
           reviewer: "lcordenod,katanarga"
-          label: ${{ steps.changelog.outputs.pr_labels }}
+          label: ${{ steps.versioning.outputs.pr_labels }}
