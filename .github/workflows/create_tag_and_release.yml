@@ -37,22 +37,22 @@ jobs:
       - name: Create release
         id: create-release
         run: |
-          commits=$(git log --pretty=format:"%s (by %aN)" ${{ steps.latesttag.outputs.tag }}..${{ steps.last-merged-pr.outputs.new_tag }})
+          commits="$(git log --pretty=format:"%s (*by %aN*)" ${{ steps.latesttag.outputs.tag }}..${{ steps.last-merged-pr.outputs.new_tag }})"
 
-          feat_commits=$(echo "$commits" | grep "^feat(" | sed 's/^/- /')
-          fix_commits=$(echo "$commits" | grep "^fix(" | sed 's/^/- /')
-          other_commits=$(echo "$commits" | grep -v "^feat(\|^fix(" | sed 's/^/- /')
+          feat_commits=$(echo "$commits" | grep "feat" | sed 's/^/- /')
+          fix_commits=$(echo "$commits" | grep "fix" | sed 's/^/- /')
+          other_commits=$(echo "$commits" | grep -v "^feat\|^fix" | sed 's/^/- /')
 
-          notes=""
-          if [ "$feat_commits" ]; then
-            notes+="✨ Additions<br/><br/>$feat_commits<br/>"
-          fi
-          if [ "$fix_commits" ]; then
-            notes+="🚧 Fixes<br/><br/>$fix_commits<br/>"
-          fi
-          if [ "$other_commits" ]; then
-            notes+="## Other<br/><br/>$other_commits<br/>"
-          fi
+          notes="
+          ✨ Additions
+          $feat_commits<br/>
+
+          🚧 Fixes
+          $fix_commits<br/>
+
+          Other
+          $other_commits<br/>
+          "
           gh release create ${{ steps.last-merged-pr.outputs.new_tag }} --title "Release ${{ steps.last-merged-pr.outputs.new_tag }}" --notes "$notes"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
