@@ -25,13 +25,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get the latest tag
-        id: latesttag
+      - name: Get the previous tag
+        id: previoustag
         run: echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
-
-      - name: Generate changelog
-        id: changelog
-        run: echo "::set-output name=commits::$(git log ${{ steps.latesttag.outputs.tag }}..HEAD --oneline)"
 
       - name: Create new tag
         run: git tag ${{ steps.last-merged-pr.outputs.new_tag }}
@@ -39,8 +35,9 @@ jobs:
       - name: Push tags
         run: git push origin --tags
 
-      - name: Display last merged PR title
-        run: echo "The neeew tag is '${{ steps.last-merged-pr.outputs.new_tag }}'"
+      - name: Generate changelog
+        id: changelog
+        run: echo "::set-output name=commits::$(git log ${{ steps.previoustag.outputs.tag }}..${{ steps.last-merged-pr.outputs.new_tag }} --oneline)"
 
       - name: Create Release
         id: create_release
