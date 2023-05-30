@@ -25,6 +25,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get the latest tag
+        id: latesttag
+        run: echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
+
       - name: Create new tag and push it
         run: | 
           git tag ${{ steps.last-merged-pr.outputs.new_tag }}
@@ -33,7 +37,7 @@ jobs:
       - name: Create release
         id: create-release
         run: |
-          commits=$(git log --pretty=format:"%s" $oldtag..$newtag)
+          commits=$(git log --pretty=format:"%s" ${{ steps.latesttag.outputs.tag }}..${{ steps.last-merged-pr.outputs.new_tag }})
 
           feat_commits=$(echo "$commits" | grep "^feat:" | sed 's/^/- /')
           fix_commits=$(echo "$commits" | grep "^fix:" | sed 's/^/- /')
@@ -41,14 +45,14 @@ jobs:
 
           notes=""
           if [ "$feat_commits" ]; then
-            notes+="## Features\n$feat_commits\n\n"
+            notes+="✨ Additions\n$feat_commits\n\n"
           fi
           if [ "$fix_commits" ]; then
-            notes+="## Fixes\n$fix_commits\n\n"
+            notes+="🚧 Fixes\n$fix_commits\n\n"
           fi
           if [ "$other_commits" ]; then
             notes+="## Other\n$other_commits\n\n"
           fi
-          gh release create $newtag --title "Release ${{ steps.last-merged-pr.outputs.new_tag }}" --notes "$notes"
+          gh release create ${{ steps.last-merged-pr.outputs.new_tag }}" --title "Release ${{ steps.last-merged-pr.outputs.new_tag }}" --notes "$notes"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
