@@ -31,7 +31,7 @@ jobs:
 
       - name: Generate changelog
         id: changelog
-        run: echo "::set-output name=commits::$(git log ${{ steps.latesttag.outputs.tag }}..HEAD)"
+        run: echo "::set-output name=commits::$(git log ${{ steps.latesttag.outputs.tag }}..HEAD --oneline)"
 
       - name: Create new tag
         run: git tag ${{ steps.last-merged-pr.outputs.new_tag }}
