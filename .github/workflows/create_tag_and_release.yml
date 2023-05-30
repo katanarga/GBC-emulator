@@ -24,6 +24,7 @@ jobs:
           fi
           echo "::set-output name=new_tag::$second_word"
           echo "::set-output name=pr_body::$PR_BODY"
+          echo "pr body: $PR_BODY"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
