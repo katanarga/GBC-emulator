@@ -44,12 +44,10 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: ncipollo/release-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.last-merged-pr.outputs.new_tag }}
-          release_name: Release ${{ steps.last-merged-pr.outputs.new_tag }}
+          tag: ${{ steps.last-merged-pr.outputs.new_tag }}
+          name: Release ${{ steps.last-merged-pr.outputs.new_tag }}
           body: ${{ steps.changelog.outputs.commits }}
-          draft: false
-          prerelease: false
