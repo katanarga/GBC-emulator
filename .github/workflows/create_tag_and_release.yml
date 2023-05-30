@@ -39,9 +39,9 @@ jobs:
         run: |
           commits=$(git log --pretty=format:"%s" ${{ steps.latesttag.outputs.tag }}..${{ steps.last-merged-pr.outputs.new_tag }})
 
-          feat_commits=$(echo "$commits" | grep "^feat:" | sed 's/^/- /')
-          fix_commits=$(echo "$commits" | grep "^fix:" | sed 's/^/- /')
-          other_commits=$(echo "$commits" | grep -v "^feat:\|^fix:" | sed 's/^/- /')
+          feat_commits=$(echo "$commits" | grep "^feat(" | sed 's/^/- /')
+          fix_commits=$(echo "$commits" | grep "^fix(" | sed 's/^/- /')
+          other_commits=$(echo "$commits" | grep -v "^feat(\|^fix(" | sed 's/^/- /')
 
           notes=""
           if [ "$feat_commits" ]; then
