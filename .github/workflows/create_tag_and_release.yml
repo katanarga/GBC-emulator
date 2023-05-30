@@ -16,17 +16,18 @@ jobs:
         run: |
           PR_NUMBER=$(gh pr list --base master --state merged --limit 1 | awk '{print $1}')
           PR_TITLE=$(gh pr view $PR_NUMBER --json title -q '.title')
-          PR_BODY=$(gh pr view $PR_NUMBER --json body -q '.body')
           read -r first_word second_word <<< "$PR_TITLE"
           if [ "$first_word" != "Release" ]; then
             echo "Error, the last PR merged in master ($PR_TITLE) is not a release, end of workflow. "
             exit 1
           fi
           echo "::set-output name=new_tag::$second_word"
-          echo "::set-output name=pr_body::$PR_BODY"
-          echo "pr body: $PR_BODY"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate changelog
+        id: changelog
+        run: echo "::set-output name=commits::$(git log ${{ steps.lasttag.outputs.tag }}..HEAD --oneline)"
 
       - name: Create new tag
         run: git tag ${{ steps.last-merged-pr.outputs.new_tag }}
@@ -36,7 +37,7 @@ jobs:
 
       - name: Display last merged PR title
         run: echo "The neeew tag is '${{ steps.last-merged-pr.outputs.new_tag }}'"
-      
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -45,6 +46,6 @@ jobs:
         with:
           tag_name: ${{ steps.last-merged-pr.outputs.new_tag }}
           release_name: Release ${{ steps.last-merged-pr.outputs.new_tag }}
-          body: ${{ steps.last-merged-pr.outputs.pr_body }}
+          body: ${{ steps.changelog.outputs.commits }}
           draft: false
           prerelease: false
