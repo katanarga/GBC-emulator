@@ -45,13 +45,13 @@ jobs:
 
           notes=""
           if [ "$feat_commits" ]; then
-            notes+="✨ Additions\n$feat_commits\n\n"
+            notes+="✨ Additions<br/>$feat_commits<br/><br/>"
           fi
           if [ "$fix_commits" ]; then
-            notes+="🚧 Fixes\n$fix_commits\n\n"
+            notes+="🚧 Fixes<br/>$fix_commits<br/><br/>"
           fi
           if [ "$other_commits" ]; then
-            notes+="## Other\n$other_commits\n\n"
+            notes+="## Other<br/>$other_commits<br/><br/>"
           fi
           gh release create ${{ steps.last-merged-pr.outputs.new_tag }} --title "Release ${{ steps.last-merged-pr.outputs.new_tag }}" --notes "$notes"
         env:
