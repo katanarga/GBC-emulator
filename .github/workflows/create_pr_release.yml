@@ -16,12 +16,11 @@ jobs:
         id: latesttag
         run: echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
 
-      - name: Show the latest tag
-        run: echo "The latest tag is ${{ steps.latesttag.outputs.tag }}"
-
       - name: Generate changelog
         id: changelog
-        run: echo "::set-output name=commits::$(git log ${{ steps.lasttag.outputs.tag }}..HEAD --oneline)"
+        run: | 
+          echo "::set-output name=commits::$(git log $(git describe --tags --abbrev=0)..HEAD)"
+          echo "my commits: $(git log $(git describe --tags --abbrev=0)..HEAD)"
 
       - name: Analyze commits and increment version
         id: versioning
@@ -50,14 +49,8 @@ jobs:
           if echo "$COMMITS" | grep -q "docs"; then
             PR_LABELS+="docs,"
           fi
-          if echo "$COMMITS" | grep -q "style"; then
-            PR_LABELS+="style,"
-          fi
           if echo "$COMMITS" | grep -q "perf"; then
             PR_LABELS+="performance,"
-          fi
-          if echo "$COMMITS" | grep -q "release|prerelease"; then
-            PR_LABELS+="release|prerelease,"
           fi
 
           NEW_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION"
@@ -65,6 +58,7 @@ jobs:
 
           echo "::set-output name=version::$NEW_VERSION"
           echo "::set-output name=pr_labels::$PR_LABELS"
+          echo "::set-output name=machin::$COMMITS"
 
       - name: Create Pull Request
         uses: devops-infra/action-pull-request@v0.5.5
@@ -73,7 +67,7 @@ jobs:
           source_branch: dev
           target_branch: master
           title: ${{ format('Release {0}', steps.versioning.outputs.version) }}
-          body: ${{ steps.changelog.outputs.commits }}
+          body: ${{ steps.versioning.outputs.machin }}
           assignee: ${{ github.actor }}
           reviewer: "lcordenod,katanarga"
           label: ${{ steps.versioning.outputs.pr_labels }}
