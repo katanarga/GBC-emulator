@@ -53,6 +53,6 @@ jobs:
           if [ "$other_commits" ]; then
             notes+="## Other\n$other_commits\n\n"
           fi
-          gh release create ${{ steps.last-merged-pr.outputs.new_tag }}" --title "Release ${{ steps.last-merged-pr.outputs.new_tag }}" --notes "$notes"
+          gh release create ${{ steps.last-merged-pr.outputs.new_tag }} --title "Release ${{ steps.last-merged-pr.outputs.new_tag }}" --notes "$notes"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
