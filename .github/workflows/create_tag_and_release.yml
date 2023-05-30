@@ -37,7 +37,7 @@ jobs:
       - name: Create release
         id: create-release
         run: |
-          commits=$(git log --pretty=format:"%s" ${{ steps.latesttag.outputs.tag }}..${{ steps.last-merged-pr.outputs.new_tag }})
+          commits=$(git log --pretty=format:"%s (by %aN)" ${{ steps.latesttag.outputs.tag }}..${{ steps.last-merged-pr.outputs.new_tag }})
 
           feat_commits=$(echo "$commits" | grep "^feat(" | sed 's/^/- /')
           fix_commits=$(echo "$commits" | grep "^fix(" | sed 's/^/- /')
