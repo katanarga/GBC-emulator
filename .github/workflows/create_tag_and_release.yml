@@ -25,26 +25,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get the previous tag
-        id: previoustag
-        run: echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
+      - name: Create new tag and push it
+        run: | 
+          git tag ${{ steps.last-merged-pr.outputs.new_tag }}
+          git push origin --tags
+      
+      - uses: johnyherangi/create-release-notes@main
+        id: create-release-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate changelog
-        id: changelog
-        run: echo "::set-output name=commits::$(git log ${{ steps.previoustag.outputs.tag }}..HEAD --oneline)"
-
-      - name: Create new tag
-        run: git tag ${{ steps.last-merged-pr.outputs.new_tag }}
-
-      - name: Push tags
-        run: git push origin --tags
-
-      - name: Create Release
-        id: create_release
-        uses: ncipollo/release-action@v1
+      - uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag: ${{ steps.last-merged-pr.outputs.new_tag }}
-          name: Release ${{ steps.last-merged-pr.outputs.new_tag }}
-          body: ${{ steps.changelog.outputs.commits }}
+          tag_name: ${{ steps.last-merged-pr.outputs.new_tag }}
+          release_name: Release ${{ steps.last-merged-pr.outputs.new_tag }}
+          body: ${{ steps.create-release-notes.outputs.release-notes }}
