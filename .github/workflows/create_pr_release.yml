@@ -18,7 +18,7 @@ jobs:
 
       - name: Generate changelog
         id: changelog
-        run: echo "::set-output name=commits::$(git log --pretty=format:"%s" ${{ steps.latesttag.outputs.tag }}..HEAD)"
+        run: echo "::set-output name=commits::$(git log --pretty=format:"%s" ${{ steps.latesttag.outputs.tag }}..HEAD --oneline)"
 
       - name: Analyze commits and increment version
         id: versioning
