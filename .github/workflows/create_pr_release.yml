@@ -16,6 +16,9 @@ jobs:
         id: latesttag
         run: echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
 
+      - name: show the latest tag
+        run: echo "last tag: ${{ steps.latesttag.outputs.tag }}"
+
       - name: Generate changelog
         id: changelog
         run: echo "::set-output name=commits::$(git log --pretty=format:"%s" ${{ steps.latesttag.outputs.tag }}..HEAD)"
