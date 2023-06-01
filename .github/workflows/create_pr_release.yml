@@ -16,6 +16,9 @@ jobs:
         id: latesttag
         run: echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
 
+      - name: show the latest tag
+        run: echo "the last tag is ${{ steps.latesttag.outputs.tag }}"
+
       - name: Analyze commits and increment version
         id: versioning
         run: |
