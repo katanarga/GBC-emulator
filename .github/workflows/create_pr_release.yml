@@ -1,7 +1,7 @@
 name: New Release PR
 on:
   workflow_dispatch: 
-    branches: [dev]
+    branches: [master]
 
 jobs:
   create-pr:
