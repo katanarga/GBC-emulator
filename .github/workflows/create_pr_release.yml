@@ -58,6 +58,7 @@ jobs:
 
           echo "::set-output name=version::$NEW_VERSION"
           echo "::set-output name=pr_labels::$PR_LABELS"
+          echo "::set-output name=machin::$COMMITS"
 
       - name: Create Pull Request
         uses: devops-infra/action-pull-request@v0.5.5
@@ -66,7 +67,7 @@ jobs:
           source_branch: dev
           target_branch: master
           title: ${{ format('Release {0}', steps.versioning.outputs.version) }}
-          body: ${{ github.event.commits }}
+          body: ${{ steps.versioning.outputs.machin }}
           assignee: ${{ github.actor }}
           reviewer: "lcordenod,katanarga"
           label: ${{ steps.versioning.outputs.pr_labels }}
