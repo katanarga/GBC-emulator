@@ -11,17 +11,19 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          ref: "dev"
 
       - name: Get the latest tag
         id: latesttag
         run: echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
 
       - name: show the latest tag
-        run: echo "last tag: ${{ steps.latesttag.outputs.tag }}"
+        id: showtag
+        run: echo "latest tag is ${{ steps.latesttag.outputs.tag }}"
 
       - name: Generate changelog
         id: changelog
-        run: echo "::set-output name=commits::$(git log --pretty=format:"%s" ${{ steps.latesttag.outputs.tag }}..HEAD)"
+        run: echo "::set-output name=commits::$(git log --oneline master..dev)"
 
       - name: Analyze commits and increment version
         id: versioning
@@ -32,7 +34,9 @@ jobs:
           PATCH_VERSION=$(echo $LAST_VERSION | cut -d. -f3)
           PR_LABELS=""
 
-          COMMITS=$(git log $LAST_VERSION..HEAD --pretty=format:"%s")
+          COMMITS=${{ steps.changelog.outputs.commits }}
+          echo "list of commits: $COMMITS"
+          echo "end list of commits"
 
           if echo "$COMMITS" | grep -q "feat"; then
             MINOR_VERSION=$((MINOR_VERSION+1))
