@@ -16,12 +16,9 @@ jobs:
         id: latesttag
         run: echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
 
-      - name: Show the latest tag
-        run: echo "The latest tag is ${{ steps.latesttag.outputs.tag }}"
-
       - name: Generate changelog
         id: changelog
-        run: echo "::set-output name=commits::$(git log ${{ steps.lasttag.outputs.tag }}..HEAD --oneline)"
+        run: echo "::set-output name=commits::$(git log --pretty=format:"%s" ${{ steps.latesttag.outputs.tag }}..HEAD)"
 
       - name: Analyze commits and increment version
         id: versioning
@@ -50,14 +47,8 @@ jobs:
           if echo "$COMMITS" | grep -q "docs"; then
             PR_LABELS+="docs,"
           fi
-          if echo "$COMMITS" | grep -q "style"; then
-            PR_LABELS+="style,"
-          fi
           if echo "$COMMITS" | grep -q "perf"; then
             PR_LABELS+="performance,"
-          fi
-          if echo "$COMMITS" | grep -q "release|prerelease"; then
-            PR_LABELS+="release|prerelease,"
           fi
 
           NEW_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION"
@@ -75,5 +66,5 @@ jobs:
           title: ${{ format('Release {0}', steps.versioning.outputs.version) }}
           body: ${{ steps.changelog.outputs.commits }}
           assignee: ${{ github.actor }}
-          reviewer: "lcordenod,katanarga"
+          reviewer: "lcordenod,katanarga,MrBuBBLs,ArunNara04"
           label: ${{ steps.versioning.outputs.pr_labels }}
