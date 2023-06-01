@@ -60,7 +60,7 @@ jobs:
           source_branch: dev
           target_branch: master
           title: ${{ format('Release {0}', steps.versioning.outputs.version) }}
-          body: ""
+          body: "..."
           assignee: ${{ github.actor }}
           reviewer: "lcordenod,katanarga"
           label: ${{ steps.versioning.outputs.pr_labels }}
