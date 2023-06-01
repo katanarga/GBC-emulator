@@ -66,5 +66,5 @@ jobs:
           title: ${{ format('Release {0}', steps.versioning.outputs.version) }}
           body: ${{ steps.changelog.outputs.commits }}
           assignee: ${{ github.actor }}
-          reviewer: "lcordenod,katanarga,MrBuBBLs,ArunNara04"
+          reviewer: "lcordenod,katanarga"
           label: ${{ steps.versioning.outputs.pr_labels }}
