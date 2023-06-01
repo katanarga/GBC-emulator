@@ -1,7 +1,7 @@
 name: New Release PR
 on:
   workflow_dispatch: 
-    branches: [master]
+    branches: [dev]
 
 jobs:
   create-pr:
@@ -17,7 +17,8 @@ jobs:
         run: echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
 
       - name: show the latest tag
-        run: echo "last tag: ${{ steps.latesttag.outputs.tag }}"
+        id: showtag
+        run: echo "new tag is ${{ steps.latesttag.outputs.tag }}"
 
       - name: Generate changelog
         id: changelog
@@ -33,6 +34,8 @@ jobs:
           PR_LABELS=""
 
           COMMITS=$(git log $LAST_VERSION..HEAD --pretty=format:"%s")
+          echo "list of commits: $COMMITS"
+          echo "end list of commits"
 
           if echo "$COMMITS" | grep -q "feat"; then
             MINOR_VERSION=$((MINOR_VERSION+1))
