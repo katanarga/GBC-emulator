@@ -12,14 +12,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get the latest tag
-        id: latesttag
-        run: echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
-
-      - name: show the latest tag
-        id: showtag
-        run: echo "latest tag is ${{ steps.latesttag.outputs.tag }}"
-
       - name: Generate changelog
         id: changelog
         run: |
@@ -27,6 +19,14 @@ jobs:
           echo "commits<<$EOF" >> $GITHUB_OUTPUT
           echo "$(git log --oneline --pretty=format:"- %s" origin/master..dev)" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
+
+      - name: Get the latest tag
+        id: latesttag
+        run: echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+
+      - name: Show the latest tag
+        id: showtag
+        run: echo "The latest tag is ${{ steps.latesttag.outputs.tag }}"
 
       - name: Analyze commits and increment version
         id: versioning
@@ -37,9 +37,7 @@ jobs:
           PATCH_VERSION=$(echo $LAST_VERSION | cut -d. -f3)
           PR_LABELS=""
 
-          COMMITS=$(git log --oneline --pretty=format:"%s" origin/master..dev)
-          echo "list of commits: $COMMITS"
-          echo "end list of commits"
+          COMMITS="${{ steps.changelog.outputs.commits }}"
 
           if echo "$COMMITS" | grep -q "feat"; then
             MINOR_VERSION=$((MINOR_VERSION+1))
