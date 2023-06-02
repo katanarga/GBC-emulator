@@ -37,7 +37,7 @@ jobs:
           PATCH_VERSION=$(echo $LAST_VERSION | cut -d. -f3)
           PR_LABELS=""
 
-          COMMITS=${{ steps.changelog.outputs.commits }}
+          COMMITS=$(git log --oneline --pretty=format:"%s" origin/master..dev)
           echo "list of commits: $COMMITS"
           echo "end list of commits"
 
