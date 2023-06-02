@@ -23,7 +23,10 @@ jobs:
 
       - name: Generate changelog
         id: changelog
-        run: echo "::set-output name=commits::$(git log --oneline master..dev)"
+        run: |
+          git fetch origin master
+          git pull -r 
+          echo "::set-output name=commits::$(git log --oneline master..dev)"
 
       - name: Analyze commits and increment version
         id: versioning
