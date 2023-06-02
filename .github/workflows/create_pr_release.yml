@@ -8,10 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: "dev"
 
       - name: Get the latest tag
         id: latesttag
@@ -23,10 +22,7 @@ jobs:
 
       - name: Generate changelog
         id: changelog
-        run: |
-          git fetch origin master
-          git pull -r 
-          echo "::set-output name=commits::$(git log --oneline master..dev)"
+        run: echo "::set-output name=commits::$(git log --oneline master..dev)"
 
       - name: Analyze commits and increment version
         id: versioning
